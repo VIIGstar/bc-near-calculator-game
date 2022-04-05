@@ -4,7 +4,9 @@
 
     <div class="sign-in" v-if="!loaded">
       <p>You'll need to sign in to call contract methods:</p>
-      <button class="btn btn-primary" style="background-color: #0072CE;">Sign In</button>
+      <button class="btn btn-primary" style="background-color: #0072ce">
+        Sign In
+      </button>
     </div>
 
     <div class="after-sign-in" v-else>
@@ -14,36 +16,85 @@
           <div class="body-shape side"></div>
           <div class="body-shape front">
             <div class="screen">
-              <CalculatorGame v-if="!showLeaderBoard" :on-play="onPlay" :game="game" />
+              <CalculatorGame
+                v-if="!showLeaderBoard"
+                :on-play="onPlay"
+                :game="game"
+              />
               <LeaderBoard v-else :leader-board="leaderBoard" />
             </div>
             <div class="buttons">
               <template v-if="logged">
                 <InputProfile
-                    v-if="!onPlay" :profile="profile"
-                    v-model:profileAge="profile.age"
-                    v-model:profileFirstName="profile.firstName"
-                    v-model:profileLastName="profile.lastName"
+                  v-if="!onPlay"
+                  :profile="profile"
+                  v-model:profileAge="profile.age"
+                  v-model:profileFirstName="profile.firstName"
+                  v-model:profileLastName="profile.lastName"
                 />
                 <div v-else class="selects row" style="margin-bottom: 16px">
-                  <div class="ab__left" style="display: flex; justify-content: center; align-items: center">
+                  <div
+                    class="ab__left"
+                    style="
+                      display: flex;
+                      justify-content: center;
+                      align-items: center;
+                    "
+                  >
                     <input v-model="game.total" class="input-game" />
-                    <button class="btn-action btn-action__submit" :disabled="!onPlay || game.onSaving" @click="submitGame" >OK</button>
+                    <button
+                      class="btn-action btn-action__submit"
+                      :disabled="!onPlay || game.onSaving"
+                      @click="submitGame"
+                    >
+                      OK
+                    </button>
                   </div>
                 </div>
               </template>
-              <GrantAccess v-else v-model:accountId="accountId"/>
+              <GrantAccess v-else v-model:accountId="accountId" />
               <div class="selects row">
                 <div class="ab__left">
-                  <button class="btn-action btn-action__play" :disabled="!logged || game.onSaving" @click="playGame" >Play</button>
-                  <button class="btn-action btn-action__rank" @click="getLeaderBoard" >Rank</button>
+                  <button
+                    class="btn-action btn-action__play"
+                    :disabled="!logged || game.onSaving"
+                    @click="playGame"
+                  >
+                    Play
+                  </button>
+                  <button
+                    class="btn-action btn-action__rank"
+                    @click="getLeaderBoard"
+                  >
+                    Rank
+                  </button>
                 </div>
                 <div class="ab">
-                  <button class="r a" @click="access" :disabled="logged || isCallContract">In</button>
-                  <button class="r b" :disabled="true" @click="getInfo">X</button>
-                  <button class="r c" :disabled="true" @click="setInfo">Y</button>
-                  <button v-if="logged" class="r d" @click="logged = false">Out</button>
-                  <button v-else class="r d" @click="grantAccess" :disabled="isCallContract">Reg</button>
+                  <button
+                    class="r a"
+                    @click="access"
+                    :disabled="logged || isCallContract"
+                  >
+                    In
+                  </button>
+                  <button class="r b" :disabled="true" @click="getInfo">
+                    X
+                  </button>
+                  <button class="r c" :disabled="true" @click="setInfo">
+                    Y
+                  </button>
+                  <button v-if="logged" class="r d" @click="logged = false">
+                    Out
+                  </button>
+                  <button
+                    v-else
+                    class="r d"
+                    @click="grantAccess"
+                    :disabled="isCallContract"
+                    :class="showHint ? 'highlight' : ''"
+                  >
+                    Reg
+                  </button>
                 </div>
               </div>
             </div>
@@ -57,7 +108,7 @@
 <script>
 import InputProfile from "@/components/InputProfile";
 import GrantAccess from "@/components/GrantAccess";
-import {SmartContractMixins} from "@/mixins/loginSmartContractMixins";
+import { SmartContractMixins } from "@/mixins/loginSmartContractMixins";
 import CalculatorGame from "@/components/CalculatorGame";
 import LeaderBoard from "@/components/LeaderBoard";
 const newGameDefault = () => {
@@ -65,68 +116,70 @@ const newGameDefault = () => {
     x: 0,
     y: 0,
     score: 0,
-    total: '',
+    total: "",
     intervalTimeLeft: null,
     timeLeft: 3,
     timeoutGameOver: null,
     gameOver: false,
     onSaving: false,
-  }
-}
+  };
+};
 
 export default {
-  name: 'App',
-  components: {LeaderBoard, CalculatorGame, GrantAccess, InputProfile},
+  name: "App",
+  components: { LeaderBoard, CalculatorGame, GrantAccess, InputProfile },
   mixins: [SmartContractMixins],
-  data () {
+  data() {
     return {
       loaded: false,
       logged: false,
       isCallContract: false,
       onPlay: false,
       showLeaderBoard: false,
-      accountId: '',
+      showHint: false,
+      accountId: "",
       profile: {
         age: 0,
-        firstName: '',
-        lastName: '',
+        firstName: "",
+        lastName: "",
         highestScore: -1,
       },
       eventListeners: [],
       leaderBoard: [],
-      game: newGameDefault()
-    }
+      game: newGameDefault(),
+    };
   },
   async created() {
-    return this.init()
+    return this.init();
   },
 
   beforeUnmount() {
-    this.removeEvents()
+    this.removeEvents();
   },
 
   methods: {
     init() {
       this.signInWallet()
-          .then(() => {
-            this.loaded = true
-            return Promise.resolve()
-          })
-          .then(this.initializeSessionData)
-          .then(this.checkPreviousTransaction)
+        .then(() => {
+          this.loaded = true;
+          return Promise.resolve();
+        })
+        .then(this.initializeSessionData)
+        .then(this.checkPreviousTransaction);
     },
     removeEvents() {
       this.eventListeners.forEach((item) => {
-        document.removeEventListener(item.event, item.listener)
-      })
-      this.eventListeners = []
+        document.removeEventListener(item.event, item.listener);
+      });
+      this.eventListeners = [];
     },
     initializeSessionData() {
-      this.logged = sessionStorage.getItem('accountLogged')?.toLowerCase() === 'true'
+      this.logged =
+        sessionStorage.getItem("accountLogged")?.toLowerCase() === "true";
       if (this.logged) {
-        this.accountId = sessionStorage.getItem('accountId') || ''
+        this.accountId = sessionStorage.getItem("accountId") || "";
         // double check
-        return this.access()
+        return this.access();
       }
     },
     reset() {
@@ -138,28 +191,28 @@ export default {
       this.game.x = Math.floor(Math.random() * 50);
       this.game.y = Math.floor(Math.random() * 50);
       this.game.timeoutGameOver = setTimeout(() => {
-        this.game.gameOver = true
+        this.game.gameOver = true;
         if (this.game.score > 0) {
-          this.saveGame()
+          this.saveGame();
         }
-      }, 3000)
+      }, 3000);
       this.game.intervalTimeLeft = setInterval(() => {
-        this.game.timeLeft--
-      }, 1000)
+        this.game.timeLeft--;
+      }, 1000);
     },
 
     playGame() {
       this.onPlay = true;
       this.reset();
-      this.game = newGameDefault()
-      this.removeEvents()
+      this.game = newGameDefault();
+      this.removeEvents();
       const listener = (evt) => {
-        if (evt.code === 'Enter') {
-          this.submitGame()
+        if (evt.code === "Enter") {
+          this.submitGame();
         }
-      }
-      document.addEventListener('keydown', listener)
-      this.eventListeners.push({ event: 'keydown', listener })
+      };
+      document.addEventListener("keydown", listener);
+      this.eventListeners.push({ event: "keydown", listener });
       this.startGame();
     },
 
@@ -167,107 +220,121 @@ export default {
       this.game.onSaving = true;
       if (this.isCallContract) return;
       this.isCallContract = true;
-      const maxScore = await this.getHighestScore()
-      const score = Number(this.game.score)
+      const maxScore = await this.getHighestScore();
+      const score = Number(this.game.score);
       if (maxScore >= score) {
-        this.isCallContract = false
-        this.game.onSaving = false
+        this.isCallContract = false;
+        this.game.onSaving = false;
         return;
       }
-      await window.contract.save_new_score({ account_id: this.accountId, score }).finally(() => {
-        this.isCallContract = false
-        this.game.onSaving = false
-      })
-      this.profile.highestScore = score
+      await window.contract
+        .save_new_score({ account_id: this.accountId, score })
+        .finally(() => {
+          this.isCallContract = false;
+          this.game.onSaving = false;
+        });
+      this.profile.highestScore = score;
     },
     async getHighestScore() {
       if (this.profile.highestScore === -1) {
-        const users = await window.contract.get_list_user({ account_id: this.accountId })
-        this.profile.highestScore = users?.[0]?.score || 0
+        const users = await window.contract.get_list_user({
+          account_id: this.accountId,
+        });
+        this.profile.highestScore = users?.[0]?.score || 0;
       }
-      return this.profile.highestScore
+      return this.profile.highestScore;
     },
 
     submitGame() {
       this.reset();
       if (this.game.x + this.game.y === Number(this.game.total)) {
-        this.game.score++
-        this.startGame()
+        this.game.score++;
+        this.startGame();
       } else {
-        this.game.gameOver = true
+        this.game.gameOver = true;
       }
 
-      this.game.total = '';
+      this.game.total = "";
     },
 
     async access() {
-      if (this.isCallContract) return
-      this.isCallContract = true
-      const res = await window.contract.check_access({ account_id: this.accountId })
-      this.isCallContract = false
+      if (this.isCallContract) return;
+      this.isCallContract = true;
+      const res = await window.contract.check_access({
+        account_id: this.accountId,
+      });
+      this.isCallContract = false;
       if (!res) {
-        alert('account has not been granted access to smart contract program!')
+        alert("Account is not granted permissions. Click `REG` to register");
+        this.showHint = true;
+        setTimeout(() => {
+          this.showHint = false;
+        }, 5000);
         return;
       }
-      this.logged = true
+      this.logged = true;
     },
 
     async grantAccess() {
-      if (this.isCallContract) return
-      this.isCallContract = true
-      const res = await window.contract.grant_access({ account_id: this.accountId })
-      this.isCallContract = false
+      if (this.isCallContract) return;
+      this.isCallContract = true;
+      const res = await window.contract.grant_access({
+        account_id: this.accountId,
+      });
+      this.isCallContract = false;
       if (!res) {
-        alert('account has not been granted access to smart contract program!')
+        alert("account has not been granted access to smart contract program!");
         return;
       }
-      this.logged = true
+      this.logged = true;
     },
 
     async setInfo() {
-      if (!this.logged || this.isCallContract) return
-      this.isCallContract = true
+      if (!this.logged || this.isCallContract) return;
+      this.isCallContract = true;
       await window.contract.set_info({
         account_id: this.accountId,
         f_name: this.profile.firstName,
         l_name: this.profile.lastName,
-        age: this.profile.age
-      })
+        age: this.profile.age,
+      });
     },
 
     async getInfo() {
       if (!this.logged) return;
-      const res = await window.contract.get_info({ account_id: this.accountId })
-      let msg = ''
+      const res = await window.contract.get_info({
+        account_id: this.accountId,
+      });
+      let msg = "";
       Object.keys(res).forEach((key) => {
-        msg += `${key.toUpperCase()}: ${res[key]} \n`
-      })
-      alert(msg)
+        msg += `${key.toUpperCase()}: ${res[key]} \n`;
+      });
+      alert(msg);
     },
 
     async getLeaderBoard() {
-      this.leaderBoard = await window.contract.get_top_players()
-      this.showLeaderBoard = true
+      this.leaderBoard = await window.contract.get_top_players();
+      this.showLeaderBoard = true;
     },
   },
 
   watch: {
-    logged: function(val) {
+    logged: function (val) {
       if (val) {
-        sessionStorage.setItem('accountLogged', val)
-        sessionStorage.setItem('accountId', this.accountId)
+        sessionStorage.setItem("accountLogged", val);
+        sessionStorage.setItem("accountId", this.accountId);
       } else {
-        sessionStorage.removeItem('accountLogged')
-        sessionStorage.removeItem('accountId')
-        this.onPlay = false
-        this.showLeaderBoard = false
+        sessionStorage.removeItem("accountLogged");
+        sessionStorage.removeItem("accountId");
+        this.onPlay = false;
+        this.showLeaderBoard = false;
       }
     },
     onPlay() {
-      this.showLeaderBoard = false
-    }
-  }
-}
+      this.showLeaderBoard = false;
+    },
+  },
+};
 </script>
 
 <style>
@@ -281,9 +348,9 @@ export default {
 }
 
 h1 {
-   margin-top: 3em;
-   margin-bottom: 1em;
- }
+  margin-top: 3em;
+  margin-bottom: 1em;
+}
 .scene {
   height: 350px;
 }
@@ -295,12 +362,12 @@ h1 {
 }
 .number {
   text-align: center;
-  margin:auto;
+  margin: auto;
   width: 66%;
   height: 28%;
   background-color: #ffd9f8;
   border-top: 5px dotted #82174d;
-  font-size:1.5rem;
+  font-size: 1.5rem;
 }
 .eyes-row {
   display: flex;
@@ -365,10 +432,10 @@ h1 {
   margin-top: 3%;
 }
 .mouth-row .tongue {
-  position:absolute;
+  position: absolute;
   width: 10px;
   height: 10px;
-  background-color: #FF585D;
+  background-color: #ff585d;
   border-radius: 50% 50% 30%;
   margin: 5px 0;
 }
@@ -444,7 +511,7 @@ h1 {
   border-radius: 100px;
 }
 .body-shape .on {
-  background-color: #F0EC74;
+  background-color: #f0ec74;
 }
 .body-shape .buttons {
   display: flex;
@@ -459,7 +526,7 @@ h1 {
   flex-direction: column;
   padding-left: 18px;
 }
-.body-shape .buttons .row input{
+.body-shape .buttons .row input {
   width: 100%;
   margin: 4px 0px 16px 0px;
   font-family: pixel;
@@ -529,19 +596,19 @@ h1 {
   padding: 0;
   text-align: center;
   color: #ffa4b1;
-  cursor:pointer;
-  box-shadow:-1px 0 1px #4B4F54;
+  cursor: pointer;
+  box-shadow: -1px 0 1px #4b4f54;
   border-width: 0px;
   font-family: pixel;
 }
-.body-shape .buttons .ab .r[disabled]{
+.body-shape .buttons .ab .r[disabled] {
   background-color: #a76b79;
 }
 .body-shape .buttons .ab .r:hover {
   opacity: 0.8;
 }
 .body-shape .buttons .ab .r:active {
-  background-color: #F0EC74;
+  background-color: #f0ec74;
   opacity: 1;
 }
 .body-shape .buttons .ab .a {
@@ -598,7 +665,7 @@ h1 {
 .loader:after {
   position: absolute;
   top: 0;
-  content: '';
+  content: "";
 }
 .loader:before {
   left: -1.5em;
@@ -668,8 +735,14 @@ h1 {
   }
 }
 
+.highlight {
+  background-color: green !important;
+  transition: 0.3s linear;
+}
+
 @font-face {
-  font-family: 'pixel';
-  src: url("https://dl.dropboxusercontent.com/s/hsdwvz761xqphhb/pixel.ttf") format('truetype');
+  font-family: "pixel";
+  src: url("https://dl.dropboxusercontent.com/s/hsdwvz761xqphhb/pixel.ttf")
+    format("truetype");
 }
 </style>
