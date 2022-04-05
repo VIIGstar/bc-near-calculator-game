@@ -1,5 +1,10 @@
 # untitled1
 
+## Config contract name to grant access from wallet
+```
+src/config.js:1
+```
+
 ## Project setup
 ```
 yarn install
